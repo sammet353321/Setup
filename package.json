@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Koç Sigortam Desktop App",
   "main": "main.js",
+  "type": "commonjs",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
@@ -15,14 +16,15 @@
   },
   "devDependencies": {
     "electron": "^40.1.0",
-    "electron-builder": "^26.7.0"
+    "electron-builder": "^26.7.0",
+    "png-to-ico": "^2.1.8"
   },
   "build": {
     "appId": "com.kocsigortam.app",
     "productName": "Koç Sigortam",
     "win": {
       "target": "nsis",
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,

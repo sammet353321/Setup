@@ -1,10 +1,16 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
-const Store = require('electron-store');
 
-const store = new Store();
+let store;
 
-function createWindow() {
+async function initStore() {
+    const { default: Store } = await import('electron-store');
+    store = new Store();
+}
+
+async function createWindow() {
+  await initStore();
+
   const win = new BrowserWindow({
     width: 1024,
     height: 768,

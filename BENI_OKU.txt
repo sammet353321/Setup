@@ -1,0 +1,19 @@
+Koç Sigortam Uygulaması - Kurulum ve Hata Çözümleri
+
+1. KURULUMDA "WİNDOWS KİŞİSEL BİLGİSAYARINIZI KORUDU" UYARISI ALIRSANIZ:
+   
+   Bu uyarı, uygulamanın henüz Microsoft tarafından tanınan bir "Dijital İmza"ya sahip olmamasından kaynaklanır (Bu imza ücretlidir). Uygulama tamamen güvenlidir.
+
+   Bu ekranı geçmek için:
+   1. "Ek bilgi" yazısına tıklayın.
+   2. Alt kısımda çıkan "Yine de çalıştır" butonuna tıklayın.
+
+   Bunu sadece ilk kurulumda bir kez yapmanız yeterlidir.
+
+2. GÜNCELLEME SİSTEMİ:
+   Uygulama sağ üst köşedeki güncelleme butonu ile GitHub üzerinden yeni versiyonları kontrol eder.
+
+3. SORUN GİDERME:
+   Eğer "Sayfa yüklenemedi" gibi bir hata alırsanız, internet bağlantınızı kontrol edip sağ üstteki "Yenile" butonunu kullanın.
+
+İyi çalışmalar.
