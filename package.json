@@ -1,0 +1,39 @@
+{
+  "name": "koc-sigortam",
+  "version": "1.0.0",
+  "description": "Koç Sigortam Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron-store": "^11.0.2"
+  },
+  "devDependencies": {
+    "electron": "^40.1.0",
+    "electron-builder": "^26.7.0"
+  },
+  "build": {
+    "appId": "com.kocsigortam.app",
+    "productName": "Koç Sigortam",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "sammet353321",
+        "repo": "Setup"
+      }
+    ]
+  }
+}
