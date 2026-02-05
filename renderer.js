@@ -9,8 +9,13 @@ const btnClose = document.getElementById('btn-close');
 const btnMinimize = document.getElementById('btn-minimize');
 const loadingOverlay = document.getElementById('loading-overlay');
 
-const CURRENT_VERSION = '1.0.7';
-const GITHUB_REPO = 'sammet353321/Setup';
+// Update UI Elements
+const updateModal = document.getElementById('update-modal');
+const updateStatusText = document.getElementById('update-status-text');
+const updateProgressBar = document.getElementById('update-progress-bar');
+const updateProgressText = document.getElementById('update-progress-text');
+
+const CURRENT_VERSION = '1.0.8';
 
 // Initialize
 (async () => {
@@ -23,6 +28,10 @@ const GITHUB_REPO = 'sammet353321/Setup';
             loadingOverlay.classList.add('hidden');
             showModal();
         }
+        
+        // Auto check for updates on startup (optional, or stick to manual button)
+        // window.api.checkForUpdate();
+        
     } catch (error) {
         console.error('Failed to get URL:', error);
         loadingOverlay.classList.add('hidden');
@@ -72,44 +81,61 @@ btnMinimize.addEventListener('click', () => {
     window.api.minimize();
 });
 
-btnUpdate.addEventListener('click', async () => {
-    try {
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
-        if (!response.ok) throw new Error('GitHub erişim hatası');
-        
-        const data = await response.json();
-        const latestVersion = data.tag_name.replace('v', '');
-        
-        if (latestVersion !== CURRENT_VERSION) {
-            const confirmUpdate = confirm(`Yeni güncelleme bulundu! (${data.tag_name})\nİndirmek istiyor musunuz?`);
-            if (confirmUpdate) {
-                // Find the .exe asset
-                const exeAsset = data.assets && data.assets.find(asset => asset.name.endsWith('.exe'));
-                const downloadUrl = exeAsset ? exeAsset.browser_download_url : data.html_url;
-                
-                // Open the direct download link or release page in default browser
-                await window.api.openExternal(downloadUrl);
-            }
-        } else {
-            alert('Uygulama güncel.\nMevcut Sürüm: ' + CURRENT_VERSION);
-        }
-    } catch (error) {
-        alert('Güncelleme kontrol edilirken hata oluştu: ' + error.message);
+// New Update Logic
+btnUpdate.addEventListener('click', () => {
+    // Trigger update check via Main Process
+    window.api.checkForUpdate();
+});
+
+// Update Listeners
+window.api.onUpdateAvailable((info) => {
+    const choice = confirm(`Yeni güncelleme bulundu! (${info.version})\nŞimdi indirmek ve kurmak istiyor musunuz?`);
+    if (choice) {
+        // Show update modal and hide everything else to simulate "closing"
+        updateModal.style.display = 'flex';
+        loadingOverlay.style.display = 'none'; // Ensure loading overlay doesn't conflict
+        // Start download
+        window.api.startDownload();
     }
 });
 
+window.api.onUpdateNotAvailable(() => {
+    alert('Uygulama güncel.\nMevcut Sürüm: ' + CURRENT_VERSION);
+});
+
+window.api.onDownloadProgress((progressObj) => {
+    const percent = Math.round(progressObj.percent);
+    updateProgressBar.style.width = percent + '%';
+    updateProgressText.innerText = percent + '%';
+    updateStatusText.innerText = 'Güncelleme İndiriliyor...';
+});
+
+window.api.onUpdateDownloaded(() => {
+    updateStatusText.innerText = 'İndirme Tamamlandı. Kuruluyor...';
+    updateProgressBar.style.width = '100%';
+    updateProgressText.innerText = '100%';
+    
+    // Slight delay to let user see 100%
+    setTimeout(() => {
+        window.api.quitAndInstall();
+    }, 1000);
+});
+
+window.api.onUpdateError((err) => {
+    updateModal.style.display = 'none';
+    alert('Güncelleme sırasında hata oluştu:\n' + err.message);
+});
+
+
 // Handle Webview loading state
 webview.addEventListener('did-start-loading', () => {
-    // Show loading spinner/overlay
     loadingOverlay.classList.remove('hidden');
 });
 
 webview.addEventListener('dom-ready', () => {
-    // Hide overlay when DOM is ready (content is loaded)
     loadingOverlay.classList.add('hidden');
 });
 
-// Fallback if dom-ready doesn't fire for some reason
 webview.addEventListener('did-stop-loading', () => {
     loadingOverlay.classList.add('hidden');
 });
@@ -117,13 +143,11 @@ webview.addEventListener('did-stop-loading', () => {
 webview.addEventListener('did-fail-load', (e) => {
     loadingOverlay.classList.add('hidden');
     console.error('Page failed to load:', e);
-    // Only alert if it's a main frame failure and not cancelled
-    if (e.errorCode !== -3) { // -3 is ABORTED (e.g. user clicked stop or navigated away)
+    if (e.errorCode !== -3) {
         alert('Sayfa yüklenemedi. Lütfen internet bağlantınızı kontrol edip yenileyin.');
     }
 });
 
-// Failsafe: Hide overlay after 15 seconds if page doesn't load
 setTimeout(() => {
     loadingOverlay.classList.add('hidden');
 }, 15000);

@@ -1,6 +1,6 @@
 {
   "name": "koc-sigortam",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Koç Sigortam Desktop App",
   "main": "main.js",
   "type": "commonjs",
@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron-store": "^11.0.2"
+    "electron-store": "^11.0.2",
+    "electron-updater": "^6.7.3"
   },
   "devDependencies": {
     "electron": "^40.1.0",
