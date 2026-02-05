@@ -7,16 +7,25 @@ const btnSettings = document.getElementById('btn-settings');
 const btnUpdate = document.getElementById('btn-update');
 const btnClose = document.getElementById('btn-close');
 const btnMinimize = document.getElementById('btn-minimize');
+const loadingOverlay = document.getElementById('loading-overlay');
 
 const CURRENT_VERSION = '1.0.0';
 const GITHUB_REPO = 'sammet353321/Setup';
 
 // Initialize
 (async () => {
-    const savedUrl = await window.api.getUrl();
-    if (savedUrl) {
-        loadUrl(savedUrl);
-    } else {
+    try {
+        const savedUrl = await window.api.getUrl();
+        if (savedUrl) {
+            loadUrl(savedUrl);
+        } else {
+            // No URL saved, hide loading overlay and show modal
+            loadingOverlay.classList.add('hidden');
+            showModal();
+        }
+    } catch (error) {
+        console.error('Failed to get URL:', error);
+        loadingOverlay.classList.add('hidden');
         showModal();
     }
 })();
@@ -25,6 +34,8 @@ function loadUrl(url) {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;
     }
+    // Ensure overlay is shown while loading starts
+    loadingOverlay.classList.remove('hidden');
     webview.src = url;
     urlModal.style.display = 'none';
 }
@@ -83,11 +94,18 @@ btnUpdate.addEventListener('click', async () => {
     }
 });
 
-// Handle Webview loading state if needed
+// Handle Webview loading state
 webview.addEventListener('did-start-loading', () => {
-    // Optional: Show loading spinner
+    // Show loading spinner/overlay if needed, but for better UX on navigation
+    // we might want to keep it subtle. For initial load, we handle it above.
 });
 
 webview.addEventListener('did-stop-loading', () => {
-    // Optional: Hide loading spinner
+    // Hide loading overlay when page finishes loading
+    loadingOverlay.classList.add('hidden');
 });
+
+// Failsafe: Hide overlay after 10 seconds if page doesn't load
+setTimeout(() => {
+    loadingOverlay.classList.add('hidden');
+}, 10000);
