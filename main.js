@@ -4,13 +4,34 @@ const path = require('path');
 let store;
 
 async function initStore() {
-    const { default: Store } = await import('electron-store');
-    store = new Store();
+    if (!store) {
+        const { default: Store } = await import('electron-store');
+        store = new Store();
+    }
 }
 
-async function createWindow() {
-  await initStore();
+function setupIpcHandlers() {
+    // IPC Handlers
+    ipcMain.handle('get-url', () => {
+        return store.get('targetUrl', '');
+    });
 
+    ipcMain.handle('set-url', (event, url) => {
+        store.set('targetUrl', url);
+        return true;
+    });
+
+    ipcMain.on('app-close', () => {
+        app.quit();
+    });
+
+    ipcMain.on('app-minimize', () => {
+        const win = BrowserWindow.getFocusedWindow();
+        if (win) win.minimize();
+    });
+}
+
+function createWindow() {
   const win = new BrowserWindow({
     width: 1024,
     height: 768,
@@ -31,27 +52,11 @@ async function createWindow() {
     shell.openExternal(url);
     return { action: 'deny' };
   });
-  
-  // IPC Handlers
-  ipcMain.handle('get-url', () => {
-    return store.get('targetUrl', '');
-  });
-
-  ipcMain.handle('set-url', (event, url) => {
-    store.set('targetUrl', url);
-    return true;
-  });
-
-  ipcMain.on('app-close', () => {
-    app.quit();
-  });
-
-  ipcMain.on('app-minimize', () => {
-    win.minimize();
-  });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await initStore();
+  setupIpcHandlers();
   createWindow();
 
   app.on('activate', () => {

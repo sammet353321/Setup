@@ -9,7 +9,7 @@ const btnClose = document.getElementById('btn-close');
 const btnMinimize = document.getElementById('btn-minimize');
 const loadingOverlay = document.getElementById('loading-overlay');
 
-const CURRENT_VERSION = '1.0.2';
+const CURRENT_VERSION = '1.0.3';
 const GITHUB_REPO = 'sammet353321/Setup';
 
 // Initialize
@@ -96,16 +96,23 @@ btnUpdate.addEventListener('click', async () => {
 
 // Handle Webview loading state
 webview.addEventListener('did-start-loading', () => {
-    // Show loading spinner/overlay if needed, but for better UX on navigation
-    // we might want to keep it subtle. For initial load, we handle it above.
+    // Optional: Show loading spinner/overlay
 });
 
 webview.addEventListener('did-stop-loading', () => {
-    // Hide loading overlay when page finishes loading
     loadingOverlay.classList.add('hidden');
 });
 
-// Failsafe: Hide overlay after 10 seconds if page doesn't load
+webview.addEventListener('did-fail-load', (e) => {
+    loadingOverlay.classList.add('hidden');
+    console.error('Page failed to load:', e);
+    // Only alert if it's a main frame failure and not cancelled
+    if (e.errorCode !== -3) { // -3 is ABORTED (e.g. user clicked stop or navigated away)
+        alert('Sayfa yüklenemedi. Lütfen internet bağlantınızı kontrol edip yenileyin.');
+    }
+});
+
+// Failsafe: Hide overlay after 15 seconds if page doesn't load
 setTimeout(() => {
     loadingOverlay.classList.add('hidden');
-}, 10000);
+}, 15000);
