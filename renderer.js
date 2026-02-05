@@ -9,7 +9,7 @@ const btnClose = document.getElementById('btn-close');
 const btnMinimize = document.getElementById('btn-minimize');
 const loadingOverlay = document.getElementById('loading-overlay');
 
-const CURRENT_VERSION = '1.0.3';
+const CURRENT_VERSION = '1.0.4';
 const GITHUB_REPO = 'sammet353321/Setup';
 
 // Initialize
@@ -96,9 +96,16 @@ btnUpdate.addEventListener('click', async () => {
 
 // Handle Webview loading state
 webview.addEventListener('did-start-loading', () => {
-    // Optional: Show loading spinner/overlay
+    // Show loading spinner/overlay
+    loadingOverlay.classList.remove('hidden');
 });
 
+webview.addEventListener('dom-ready', () => {
+    // Hide overlay when DOM is ready (content is loaded)
+    loadingOverlay.classList.add('hidden');
+});
+
+// Fallback if dom-ready doesn't fire for some reason
 webview.addEventListener('did-stop-loading', () => {
     loadingOverlay.classList.add('hidden');
 });
