@@ -1,6 +1,6 @@
 {
   "name": "koc-sigortam",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Koç Sigortam Desktop App",
   "main": "main.js",
   "type": "commonjs",
