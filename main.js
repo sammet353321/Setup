@@ -21,6 +21,12 @@ function setupIpcHandlers() {
         return true;
     });
 
+    // Add explicit handler for opening external URLs
+    ipcMain.handle('open-external', async (event, url) => {
+        await shell.openExternal(url);
+        return true;
+    });
+
     ipcMain.on('app-close', () => {
         app.quit();
     });

@@ -9,7 +9,7 @@ const btnClose = document.getElementById('btn-close');
 const btnMinimize = document.getElementById('btn-minimize');
 const loadingOverlay = document.getElementById('loading-overlay');
 
-const CURRENT_VERSION = '1.0.4';
+const CURRENT_VERSION = '1.0.5';
 const GITHUB_REPO = 'sammet353321/Setup';
 
 // Initialize
