@@ -9,7 +9,7 @@ const btnClose = document.getElementById('btn-close');
 const btnMinimize = document.getElementById('btn-minimize');
 const loadingOverlay = document.getElementById('loading-overlay');
 
-const CURRENT_VERSION = '1.0.5';
+const CURRENT_VERSION = '1.0.6';
 const GITHUB_REPO = 'sammet353321/Setup';
 
 // Initialize
@@ -83,8 +83,12 @@ btnUpdate.addEventListener('click', async () => {
         if (latestVersion !== CURRENT_VERSION) {
             const confirmUpdate = confirm(`Yeni güncelleme bulundu! (${data.tag_name})\nİndirmek istiyor musunuz?`);
             if (confirmUpdate) {
-                // Open the release page in default browser
-                window.api.openExternal(data.html_url);
+                // Find the .exe asset
+                const exeAsset = data.assets && data.assets.find(asset => asset.name.endsWith('.exe'));
+                const downloadUrl = exeAsset ? exeAsset.browser_download_url : data.html_url;
+                
+                // Open the direct download link or release page in default browser
+                await window.api.openExternal(downloadUrl);
             }
         } else {
             alert('Uygulama güncel.\nMevcut Sürüm: ' + CURRENT_VERSION);
