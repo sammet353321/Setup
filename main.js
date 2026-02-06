@@ -1,32 +1,43 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
-
-let store;
+const fs = require('fs');
 
 // Configure Auto Updater
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 // IMPORTANT: Disable signature verification since we don't have a code signing certificate
-// This allows the update to proceed even if "publisher is unknown"
 autoUpdater.verifyUpdateCodeSignature = false;
 
-async function initStore() {
-    if (!store) {
-        const { default: Store } = await import('electron-store');
-        store = new Store();
+// Function to read URL from config.txt
+function getUrlFromConfig() {
+    try {
+        // Look for config.txt in the same directory as the executable (or app resources)
+        const configPath = path.join(path.dirname(app.getPath('exe')), 'config.txt');
+        
+        if (fs.existsSync(configPath)) {
+            const content = fs.readFileSync(configPath, 'utf-8').trim();
+            if (content && (content.startsWith('http://') || content.startsWith('https://'))) {
+                return content;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error('Error reading config.txt:', error);
+        return null;
     }
 }
 
 function setupIpcHandlers() {
     // IPC Handlers
     ipcMain.handle('get-url', () => {
-        return store.get('targetUrl', '');
+        // Read directly from config file every time
+        return getUrlFromConfig();
     });
 
     ipcMain.handle('set-url', (event, url) => {
-        store.set('targetUrl', url);
-        return true;
+        // We don't save to file from UI anymore, but keep handler to prevent crash
+        return true; 
     });
 
     // Add explicit handler for opening external URLs
@@ -103,7 +114,6 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  await initStore();
   setupIpcHandlers();
   createWindow();
 

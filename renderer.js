@@ -1,9 +1,9 @@
 const webview = document.getElementById('main-webview');
-const urlModal = document.getElementById('url-modal');
-const urlInput = document.getElementById('url-input');
-const btnSaveUrl = document.getElementById('btn-save-url');
+// const urlModal = document.getElementById('url-modal'); // Removed URL modal
+// const urlInput = document.getElementById('url-input');
+// const btnSaveUrl = document.getElementById('btn-save-url');
 const btnRefresh = document.getElementById('btn-refresh');
-const btnSettings = document.getElementById('btn-settings');
+// const btnSettings = document.getElementById('btn-settings'); // Settings button removed
 const btnUpdate = document.getElementById('btn-update');
 const btnClose = document.getElementById('btn-close');
 const btnMinimize = document.getElementById('btn-minimize');
@@ -15,25 +15,24 @@ const updateStatusText = document.getElementById('update-status-text');
 const updateProgressBar = document.getElementById('update-progress-bar');
 const updateProgressText = document.getElementById('update-progress-text');
 
-const CURRENT_VERSION = '1.0.13';
+const CURRENT_VERSION = '1.0.14';
 
 // Initialize
 (async () => {
     try {
         const savedUrl = await window.api.getUrl();
-        // Force URL load even if webview state is weird
         if (savedUrl) {
-            console.log('Saved URL found:', savedUrl);
+            console.log('Config URL found:', savedUrl);
             loadUrl(savedUrl);
         } else {
-            console.log('No saved URL found');
+            console.log('No config URL found');
+            // Show alert instead of modal since modal is removed
+            alert('Yapılandırma dosyası (config.txt) bulunamadı veya geçersiz. Lütfen uygulamanın kurulu olduğu klasörde config.txt dosyası olduğundan ve içinde geçerli bir URL yazdığından emin olun.');
             loadingOverlay.classList.add('hidden');
-            showModal();
         }
     } catch (error) {
         console.error('Failed to get URL:', error);
         loadingOverlay.classList.add('hidden');
-        showModal();
     }
 })();
 
@@ -46,7 +45,6 @@ function loadUrl(url) {
     
     // Reset overlay state properly
     loadingOverlay.classList.remove('hidden');
-    urlModal.style.display = 'none';
     
     // Force webview navigation
     if (webview.src === url) {
@@ -56,28 +54,9 @@ function loadUrl(url) {
     }
 }
 
-function showModal() {
-    urlModal.style.display = 'flex';
-    if (webview.src && webview.src !== 'about:blank') {
-        urlInput.value = webview.src;
-    }
-}
-
 // Event Listeners
-btnSaveUrl.addEventListener('click', async () => {
-    const url = urlInput.value.trim();
-    if (url) {
-        await window.api.setUrl(url);
-        loadUrl(url);
-    }
-});
-
 btnRefresh.addEventListener('click', () => {
     webview.reload();
-});
-
-btnSettings.addEventListener('click', () => {
-    showModal();
 });
 
 btnClose.addEventListener('click', () => {
@@ -142,11 +121,6 @@ webview.addEventListener('did-start-loading', () => {
 webview.addEventListener('dom-ready', () => {
     loadingOverlay.classList.add('hidden');
 });
-
-// Remove did-stop-loading handler as it might conflict with dom-ready
-// webview.addEventListener('did-stop-loading', () => {
-//    loadingOverlay.classList.add('hidden');
-// });
 
 webview.addEventListener('did-fail-load', (e) => {
     loadingOverlay.classList.add('hidden');
