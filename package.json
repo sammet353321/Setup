@@ -1,6 +1,6 @@
 {
   "name": "koc-sigortam",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Koç Sigortam Desktop App",
   "main": "main.js",
   "type": "commonjs",
@@ -25,7 +25,8 @@
     "productName": "Koç Sigortam",
     "win": {
       "target": "nsis",
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.ico",
+      "artifactName": "${name}-setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,

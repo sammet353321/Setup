@@ -15,7 +15,7 @@ const updateStatusText = document.getElementById('update-status-text');
 const updateProgressBar = document.getElementById('update-progress-bar');
 const updateProgressText = document.getElementById('update-progress-text');
 
-const CURRENT_VERSION = '1.0.9';
+const CURRENT_VERSION = '1.0.10';
 
 // Initialize
 (async () => {
