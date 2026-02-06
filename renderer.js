@@ -15,23 +15,21 @@ const updateStatusText = document.getElementById('update-status-text');
 const updateProgressBar = document.getElementById('update-progress-bar');
 const updateProgressText = document.getElementById('update-progress-text');
 
-const CURRENT_VERSION = '1.0.11';
+const CURRENT_VERSION = '1.0.13';
 
 // Initialize
 (async () => {
     try {
         const savedUrl = await window.api.getUrl();
+        // Force URL load even if webview state is weird
         if (savedUrl) {
+            console.log('Saved URL found:', savedUrl);
             loadUrl(savedUrl);
         } else {
-            // No URL saved, hide loading overlay and show modal
+            console.log('No saved URL found');
             loadingOverlay.classList.add('hidden');
             showModal();
         }
-        
-        // Auto check for updates on startup (optional, or stick to manual button)
-        // window.api.checkForUpdate();
-        
     } catch (error) {
         console.error('Failed to get URL:', error);
         loadingOverlay.classList.add('hidden');
@@ -40,13 +38,22 @@ const CURRENT_VERSION = '1.0.11';
 })();
 
 function loadUrl(url) {
+    if (!url) return;
+    
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;
     }
-    // Ensure overlay is shown while loading starts
+    
+    // Reset overlay state properly
     loadingOverlay.classList.remove('hidden');
-    webview.src = url;
     urlModal.style.display = 'none';
+    
+    // Force webview navigation
+    if (webview.src === url) {
+        webview.reload();
+    } else {
+        webview.src = url;
+    }
 }
 
 function showModal() {
@@ -136,9 +143,10 @@ webview.addEventListener('dom-ready', () => {
     loadingOverlay.classList.add('hidden');
 });
 
-webview.addEventListener('did-stop-loading', () => {
-    loadingOverlay.classList.add('hidden');
-});
+// Remove did-stop-loading handler as it might conflict with dom-ready
+// webview.addEventListener('did-stop-loading', () => {
+//    loadingOverlay.classList.add('hidden');
+// });
 
 webview.addEventListener('did-fail-load', (e) => {
     loadingOverlay.classList.add('hidden');
