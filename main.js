@@ -9,11 +9,32 @@ autoUpdater.autoInstallOnAppQuit = true;
 // IMPORTANT: Disable signature verification since we don't have a code signing certificate
 autoUpdater.verifyUpdateCodeSignature = false;
 
+// Function to get config path (handles both dev and prod)
+function getConfigPath() {
+    if (app.isPackaged) {
+        // In production, config.txt is next to the executable
+        return path.join(path.dirname(app.getPath('exe')), 'config.txt');
+    } else {
+        // In development, config.txt is in the project root
+        return path.join(__dirname, 'config.txt');
+    }
+}
+
 // Function to read URL from config.txt
 function getUrlFromConfig() {
     try {
-        // Look for config.txt in the same directory as the executable (or app resources)
-        const configPath = path.join(path.dirname(app.getPath('exe')), 'config.txt');
+        const configPath = getConfigPath();
+        
+        // If config file doesn't exist, create it with a default template
+        if (!fs.existsSync(configPath)) {
+            const defaultContent = "https://google.com";
+            try {
+                fs.writeFileSync(configPath, defaultContent, 'utf-8');
+            } catch (writeError) {
+                console.error('Error creating config.txt:', writeError);
+            }
+            return null; // Return null first time so user sees the alert and can edit the file
+        }
         
         if (fs.existsSync(configPath)) {
             const content = fs.readFileSync(configPath, 'utf-8').trim();
